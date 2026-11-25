@@ -27,14 +27,24 @@ const LINE =
 // Self-check against the competition gate before writing: the entry
 // must be UTF-8 text of 1 to 200 characters, a single line, and not
 // only whitespace. Fail loudly instead of shipping a bad artifact.
-const chars = [...LINE];
-if (chars.length < 1 || chars.length > 200) {
-  throw new Error(`entry is ${chars.length} characters, gate needs 1-200`);
-}
-if (LINE.trim().length === 0 || LINE.includes("\n")) {
-  throw new Error("entry must be one non-blank line");
+function assertValidLine(line: string): number {
+  const chars = [...line];
+  if (chars.length < 1 || chars.length > 200) {
+    throw new Error(`entry is ${chars.length} characters, gate needs 1-200`);
+  }
+  if (line.trim().length === 0 || line.includes("\n")) {
+    throw new Error("entry must be one non-blank line");
+  }
+  return chars.length;
 }
 
-const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
-fs.mkdirSync(outDir, { recursive: true });
-fs.writeFileSync(outDir + "/entry.txt", LINE, "utf8");
+assertValidLine(LINE);
+
+function outputPath(): string {
+  const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
+  return outDir + "/entry.txt";
+}
+
+const entryPath = outputPath();
+fs.mkdirSync(entryPath.slice(0, entryPath.lastIndexOf("/")), { recursive: true });
+fs.writeFileSync(entryPath, LINE, "utf8");
